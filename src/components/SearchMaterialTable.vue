@@ -1,9 +1,18 @@
 <template>
-  <div>
+  <div v-if="toggleAddFlag">
+    <AddMaterialForm
+      :toggleAddFlag="toggleAddFlag"
+      @handleExitAddForm="handleExitAddForm"
+      @addMaterialTable="addMaterialTable"
+    />
+  </div>
+  <div v-else="!toggleAddFlag">
     <div>
-      <input v-model="searchQuery" placeholder="Search" />
+      <input v-model="searchQuery" placeholder="Search Material" />
       <button @click="performSearch">Search</button>
+      <button @click="toggleAddFlag = true" style="float: right;">Add Material</button>
     </div>
+
     <table>
       <thead>
         <tr>
@@ -24,7 +33,7 @@
               :rowIndex="rowIndex"
               columnName="A1"
               :stockQuantity.sync="item.A1.QTY"
-              :savedQuantity="item.A1.savedQuantity"
+              :savedQuantity="item.A1.savedQTY"
               @handle-stock-update="handleStockUpdate"
             />
           </td>
@@ -34,27 +43,27 @@
               :rowIndex="rowIndex"
               columnName="A2"
               :stockQuantity.sync="item.A2.QTY"
-              :savedQuantity="item.A2.savedQuantity"
+              :savedQuantity="item.A2.savedQTY"
               @handle-stock-update="handleStockUpdate"
             />
           </td>
           <td>
             <StockQuantityInput
-              :tab="(items.length * 2) + rowIndex + 1"
+              :tab="items.length * 2 + rowIndex + 1"
               :rowIndex="rowIndex"
               columnName="A3"
               :stockQuantity.sync="item.A3.QTY"
-              :savedQuantity="item.A3.savedQuantity"
+              :savedQuantity="item.A3.savedQTY"
               @handle-stock-update="handleStockUpdate"
             />
           </td>
           <td>
             <StockQuantityInput
-              :tab="(items.length * 3) + rowIndex + 1"
+              :tab="items.length * 3 + rowIndex + 1"
               :rowIndex="rowIndex"
               columnName="A4"
               :stockQuantity.sync="item.A4.QTY"
-              :savedQuantity="item.A4.savedQuantity"
+              :savedQuantity="item.A4.savedQTY"
               @handle-stock-update="handleStockUpdate"
             />
           </td>
@@ -75,17 +84,20 @@
 <script>
 import StockTotal from "./StockTotal.vue";
 import StockQuantityInput from "./StockQuantityInput.vue";
+import AddMaterialForm from "./AddMaterialForm.vue";
 import { getTableData } from "../utils/mockData";
 export default {
   components: {
     StockTotal,
     StockQuantityInput,
+    AddMaterialForm,
   },
   data() {
     return {
       searchQuery: "",
       items: [],
       filteredItems: [],
+      toggleAddFlag: false,
     };
   },
   methods: {
@@ -105,13 +117,13 @@ export default {
         let distinctLocation = [...new Set(data.map((s) => s.Location))].sort();
 
         // Begin tranforming...
-        
+
         let transformedTableData = distinctCode.map((productCode) => {
           // group unique product code
           let filteredData = data.filter(
             (element) => element.ProductCode === productCode
           );
-          // fills missing location 
+          // fills missing location
           let materialLocationList = distinctLocation.reduce(
             (accumulator, current) => {
               let matchedItemLocation = filteredData.find(
@@ -150,13 +162,23 @@ export default {
       }, 1000); // Simulate a 1 second delay
     },
     handleStockUpdate(data) {
-      if(!data.value) {
-        this.items[data.index][data.key].QTY = null
-        this.filteredItems[data.index][data.key].QTY = null
+      if (!data.value) {
+        this.items[data.index][data.key].QTY = null;
+        this.filteredItems[data.index][data.key].QTY = null;
       } else {
-        this.items[data.index][data.key].QTY = parseInt(data.value)
+        this.items[data.index][data.key].QTY = parseInt(data.value);
       }
     },
+    handleExitAddForm() {
+      this.toggleAddFlag = !this.toggleAddFlag;
+    },
+    addMaterialTable(data) {
+      // handle emited value from AddMaterialForm component
+      let found = this.items.find(element => element.Material === data.Material)
+      if (!found) {
+        this.items.push(data)
+      }
+    }
   },
   created() {
     this.fetchItems();
