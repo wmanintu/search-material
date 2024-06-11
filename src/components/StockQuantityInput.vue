@@ -1,6 +1,7 @@
 <template>
   <div>
     <input
+        :id="'input'+tab"
       :tabindex="tab"
       type="text"
       :value="stockQuantity"
@@ -12,7 +13,7 @@
 
 <script>
 export default {
-  props: ["stockQuantity", "rowIndex", "columnName", "tab"],
+  props: ["stockQuantity", "rowIndex", "columnName", "tab", "savedQuantity"],
   methods: {
     handleQuantityInput(event) {
       this.$emit("handleStockUpdate", {

@@ -1,8 +1,10 @@
 <template>
   <div>
-    <input v-model="searchQuery" placeholder="search to add" />
+    <input id="search-material-input-2" v-model="searchQuery" placeholder="search material" />
     <button  @click="handleSearchMaterial">search</button>
     <br />
+    material: {{ material.Material  }}
+    <br>
     product code: {{ material.ProductCode }}
     <br />
     description: {{ material.Description }}

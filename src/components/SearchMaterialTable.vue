@@ -8,11 +8,17 @@
   </div>
   <div v-else="!toggleAddFlag">
     <div>
-      <input v-model="searchQuery" placeholder="Search Material" />
+      <input
+        id="search-material-input-1"
+        v-model="searchQuery"
+        placeholder="Search Material"
+      />
       <button @click="performSearch">Search</button>
-      <button @click="toggleAddFlag = true" style="float: right;">Add Material</button>
+      <button @click="toggleAddFlag = true" style="float: right">
+        Add Material
+      </button>
     </div>
-
+    <br />
     <table>
       <thead>
         <tr>
@@ -78,6 +84,9 @@
         </tr>
       </tbody>
     </table>
+    <br />
+    <button style="float: right" @click="handleSavebutton">Save Changes</button>
+    <pre v-if="displaySaveData">{{ displaySaveData }}</pre>
   </div>
 </template>
 
@@ -98,6 +107,7 @@ export default {
       items: [],
       filteredItems: [],
       toggleAddFlag: false,
+      displaySaveData: null,
     };
   },
   methods: {
@@ -174,17 +184,47 @@ export default {
     },
     addMaterialTable(data) {
       // handle emited value from AddMaterialForm component
-      let found = this.items.find(element => element.Material === data.Material)
+      let found = this.items.find(
+        (element) => element.Material === data.Material
+      );
       if (!found) {
-        this.items.push(data)
+        this.items.push(data);
       }
-    }
+    },
+    handleSavebutton() {
+      //transform table data to postData
+      let postData = this.items.reduce((accumulator, current) => {
+        let result = Object.keys(current)
+          .filter((key) => !["Material", "ProductCode"].includes(key))
+          .reduce((array, key) => {
+            if (current[key].QTY !== current[key].savedQTY) {
+              array.push({
+                Material: current.Material,
+                // ProductCode: current.ProductCode,
+                Location: key,
+                QTY: current[key].QTY,
+              });
+            }
+            return array;
+          }, []);
+        accumulator.push(...result);
+        return accumulator;
+      }, []);
+      console.log('Log saves', postData)
+      this.displaySaveData = postData
+    },
   },
   created() {
     this.fetchItems();
   },
 };
 </script>
+<!-- API Commit
+[{	
+	Material: "",
+	Location: "",
+	QTY: 100
+}, ...] -->
 
 <style scoped>
 table {
