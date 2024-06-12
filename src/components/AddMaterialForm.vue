@@ -22,7 +22,7 @@
 <script>
 import { getMaterial } from "../utils/mockData";
 export default {
-  props: ["toggleAddFlag"],
+  props: ["toggleAddFlag", "locations"],
   data() {
     return {
       searchQuery: "",
@@ -55,23 +55,13 @@ export default {
     handleAddButton() {
       this.material = {
         ...this.material,
-        A1: {
-          QTY: null,
-          savedQTY: null,
-        },
-        A2: {
-          QTY: null,
-          savedQTY: null,
-        },
-        A3: {
-          QTY: null,
-          savedQTY: null,
-        },
-        A4: {
-          QTY: null,
-          savedQTY: null,
-        },
       };
+      this.locations.forEach((location, index) => {
+        this.material[location] = {
+          QT: null,
+          savedQTY: null
+        }
+      })
       this.$emit("addMaterialTable", this.material);
       this.handleExitAddForm();
     },

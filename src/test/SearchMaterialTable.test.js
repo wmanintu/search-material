@@ -1,9 +1,82 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { mockItems } from "../utils/mockData";
+import { nextTick } from 'vue'
 
 import SearchMaterialTable from "../components/SearchMaterialTable.vue";
 import StockQuantityInput from "../components/StockQuantityInput.vue";
+
+describe("Save changes button", () => {
+  let wrapper;
+  let mockData;
+  beforeEach(async () => {
+    // Deep clone the mock data to prevent mutations
+    mockData = JSON.parse(JSON.stringify(mockItems));
+    // Mount a fresh instance of the component before each test
+    wrapper = mount(SearchMaterialTable, {
+      data() {
+        return {
+          filteredItems: mockItems,
+          items: mockItems,
+          toggleAddFlag: false,
+        };
+      },
+    });
+  });
+  afterEach(() => {
+    // Unmount the parent component after each test
+    wrapper.unmount();
+  });
+  it("Logs an empty array when button is clicked with no changes", () => {
+    // Mock console.log
+    const consoleLogMock = vi
+      .spyOn(console, "log")
+      .mockImplementation(() => {});
+
+    // Simulate button click
+    wrapper.find("#save-changes-button").trigger("click");
+
+    // Assert that console.log was called with the correct message
+    expect(consoleLogMock).toHaveBeenCalledWith([]);
+  });
+  it("Logs changes when button is clicked with changes made", async () => {
+
+    // await wrapper.vm.$nextTick()
+    //await wrapper.vm.$nextTick()
+    //await nextTick()
+    
+    // Mock console.log
+    const consoleLogMock = vi
+      .spyOn(console, "log")
+      .mockImplementation(() => {});
+
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+    
+    // get the first element and check if it exist
+
+    const childComponent = await wrapper.findAllComponents(StockQuantityInput).at(0);
+
+    // await flushPromises()
+
+    expect(childComponent.exists()).toBeTruthy();
+
+    // set 100 qty to first input
+    const input = childComponent.find("input");
+    await input.setValue(100);
+
+    // Simulate button click
+    wrapper.find("#save-changes-button").trigger("click");
+
+    // Assert that console.log was called with the correct message
+    expect(consoleLogMock).toHaveBeenCalledWith([
+      {
+        Location: "A1",
+        Material: "MAT0001",
+        QTY: 100,
+      },
+    ]);
+  });
+});
 
 describe("Material Table", () => {
   let wrapper;
@@ -23,14 +96,21 @@ describe("Material Table", () => {
       },
     });
   });
+  afterEach(() => {
+    // Unmount the parent component after each test
+    wrapper.unmount();
+  });
   it("Table renders properly", async () => {
     const table = wrapper.find("table");
     expect(table.exists()).toBe(true);
   });
 
   it("Adding total stock correctly after changing input quantity", async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+
     // get the first element and check if it exist
     const childComponent = wrapper.findAllComponents(StockQuantityInput).at(0);
+
     expect(childComponent.exists()).toBeTruthy();
 
     // set 100 qty to first input
@@ -44,7 +124,8 @@ describe("Material Table", () => {
     expect(totalRow0.text()).toBe("170");
   });
 
-  it("Input shoud tabindex from top to bottom and left to right", async () => {
+  it("Input should tabindex from top to bottom and left to right", async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1100));
     // Find all child components
     const childComponents = wrapper.findAllComponents(StockQuantityInput);
 
@@ -95,6 +176,11 @@ describe("Search material inside table", () => {
     });
   });
 
+  afterEach(() => {
+    // Unmount the parent component after each test
+    wrapper.unmount();
+  });
+
   it("Search display correct result", async () => {
     // input MAT0002 search
     await wrapper.find("#search-material-input-1").setValue("MAT0002");
@@ -113,6 +199,8 @@ describe("Search material inside table", () => {
   });
 
   it("Searching for materials won't reset a changed quantity value", async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+
     // change quantity value for MAT0002 at location A2 to 150
     const childComponent = wrapper.findAllComponents(StockQuantityInput).at(5);
     const input = childComponent.find("input");
@@ -175,6 +263,7 @@ describe("Add Material Form", () => {
 
   afterEach(() => {
     vi.clearAllTimers();
+    wrapper.unmount();
   });
 
   it("Open and close Properly", async () => {
@@ -237,60 +326,4 @@ describe("Add Material Form", () => {
   });
 });
 
-describe("Save changes button", () => {
-  let wrapper;
-  let mockData;
-  beforeEach(() => {
-    // Deep clone the mock data to prevent mutations
-    mockData = JSON.parse(JSON.stringify(mockItems));
-    // Mount a fresh instance of the component before each test
-    wrapper = mount(SearchMaterialTable, {
-      data() {
-        return {
-          filteredItems: mockData,
-          items: mockData,
-          toggleAddFlag: false,
-        };
-      },
-    });
-  });
 
-  it("Logs an empty array when button is clicked with no changes", () => {
-    // Mock console.log
-    const consoleLogMock = vi
-      .spyOn(console, "log")
-      .mockImplementation(() => {});
-
-    // Simulate button click
-    wrapper.find("#save-changes-button").trigger("click");
-
-    // Assert that console.log was called with the correct message
-    expect(consoleLogMock).toHaveBeenCalledWith([]);
-  });
-  it("Logs changes when button is clicked with changes made", async () => {
-    // Mock console.log
-    const consoleLogMock = vi
-      .spyOn(console, "log")
-      .mockImplementation(() => {});
-
-    // get the first element and check if it exist
-    const childComponent = wrapper.findAllComponents(StockQuantityInput).at(0);
-    expect(childComponent.exists()).toBeTruthy();
-
-    // set 100 qty to first input
-    const input = childComponent.find("input");
-    await input.setValue(100);
-
-    // Simulate button click
-    wrapper.find("#save-changes-button").trigger("click");
-
-    // Assert that console.log was called with the correct message
-    expect(consoleLogMock).toHaveBeenCalledWith([
-      {
-        Location: "A1",
-        Material: "MAT0001",
-        QTY: 100,
-      },
-    ]);
-  });
-});

@@ -2,6 +2,7 @@
   <div v-show="toggleAddFlag">
     <AddMaterialForm
       :toggleAddFlag="toggleAddFlag"
+      :locations="locations"
       @handleExitAddForm="handleExitAddForm"
       @addMaterialTable="addMaterialTable"
     />
@@ -23,62 +24,26 @@
       <thead>
         <tr>
           <th>Material</th>
-          <th>A1</th>
-          <th>A2</th>
-          <th>A3</th>
-          <th>A4</th>
+          <th v-for="location in locations">{{location}}</th>
           <th>Total</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(item, rowIndex) in filteredItems" :key="item.Material">
           <td :id="'table-material-row' + rowIndex">{{ item.Material }}</td>
-          <td>
+          <td v-for="(location, columnIndex) in locations" :key="location">
             <StockQuantityInput
-              :tab="rowIndex + 1"
+              :tab="getTabIndexValue(columnIndex, rowIndex, items.length)"
               :rowIndex="rowIndex"
-              columnName="A1"
-              :stockQuantity.sync="item.A1.QTY"
-              :savedQuantity="item.A1.savedQTY"
-              @handle-stock-update="handleStockUpdate"
-            />
-          </td>
-          <td>
-            <StockQuantityInput
-              :tab="items.length + rowIndex + 1"
-              :rowIndex="rowIndex"
-              columnName="A2"
-              :stockQuantity.sync="item.A2.QTY"
-              :savedQuantity="item.A2.savedQTY"
-              @handle-stock-update="handleStockUpdate"
-            />
-          </td>
-          <td>
-            <StockQuantityInput
-              :tab="items.length * 2 + rowIndex + 1"
-              :rowIndex="rowIndex"
-              columnName="A3"
-              :stockQuantity.sync="item.A3.QTY"
-              :savedQuantity="item.A3.savedQTY"
-              @handle-stock-update="handleStockUpdate"
-            />
-          </td>
-          <td>
-            <StockQuantityInput
-              :tab="items.length * 3 + rowIndex + 1"
-              :rowIndex="rowIndex"
-              columnName="A4"
-              :stockQuantity.sync="item.A4.QTY"
-              :savedQuantity="item.A4.savedQTY"
+              :columnName="location"
+              :stockQuantity.sync="item[location].QTY"
+              :savedQuantity="item[location].savedQTY"
               @handle-stock-update="handleStockUpdate"
             />
           </td>
           <td>
             <StockTotal
-              :A1="item.A1.QTY"
-              :A2="item.A2.QTY"
-              :A3="item.A3.QTY"
-              :A4="item.A4.QTY"
+              :item="item"
               :totalIndex="rowIndex"
             />
           </td>
@@ -107,6 +72,7 @@ export default {
       items: [],
       filteredItems: [],
       toggleAddFlag: false,
+      locations: []
     };
   },
   methods: {
@@ -116,6 +82,9 @@ export default {
         return item.Material.toLowerCase().includes(query);
       });
     },
+    getTabIndexValue(columnIndex, rowIndex, itemLength) {
+      return (itemLength * columnIndex) + rowIndex + 1
+    },
     fetchItems() {
       // Simulate an API call
       setTimeout(() => {
@@ -124,7 +93,7 @@ export default {
         let distinctCode = [...new Set(data.map((s) => s.ProductCode))];
 
         let distinctLocation = [...new Set(data.map((s) => s.Location))].sort();
-
+        this.locations = distinctLocation
         // Begin tranforming...
 
         let transformedTableData = distinctCode.map((productCode) => {
