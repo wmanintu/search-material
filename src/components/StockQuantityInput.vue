@@ -1,7 +1,7 @@
 <template>
   <div>
     <input
-        :id="'input'+tab"
+      :id="'input'+tab"
       :tabindex="tab"
       type="text"
       :value="stockQuantity"

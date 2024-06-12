@@ -1,25 +1,25 @@
 <template>
-  <div v-if="toggleAddFlag">
+  <div v-show="toggleAddFlag">
     <AddMaterialForm
       :toggleAddFlag="toggleAddFlag"
       @handleExitAddForm="handleExitAddForm"
       @addMaterialTable="addMaterialTable"
     />
   </div>
-  <div v-else="!toggleAddFlag">
+  <div v-show="!toggleAddFlag">
     <div>
       <input
         id="search-material-input-1"
         v-model="searchQuery"
         placeholder="Search Material"
       />
-      <button @click="performSearch">Search</button>
-      <button @click="toggleAddFlag = true" style="float: right">
+      <button id="search-material-button-1" @click="performSearch">Search</button>
+      <button id="add-material-toggle-button" @click="toggleAddFlag = true" style="float: right">
         Add Material
       </button>
     </div>
     <br />
-    <table>
+    <table id="material-table">
       <thead>
         <tr>
           <th>Material</th>
@@ -32,7 +32,7 @@
       </thead>
       <tbody>
         <tr v-for="(item, rowIndex) in filteredItems" :key="item.Material">
-          <td>{{ item.Material }}</td>
+          <td :id="'table-material-row' + rowIndex">{{ item.Material }}</td>
           <td>
             <StockQuantityInput
               :tab="rowIndex + 1"
@@ -79,14 +79,14 @@
               :A2="item.A2.QTY"
               :A3="item.A3.QTY"
               :A4="item.A4.QTY"
+              :totalIndex="rowIndex"
             />
           </td>
         </tr>
       </tbody>
     </table>
     <br />
-    <button style="float: right" @click="handleSavebutton">Save Changes</button>
-    <pre v-if="displaySaveData">{{ displaySaveData }}</pre>
+    <button id="save-changes-button" style="float: right" @click="handleSavebutton">Save Changes</button>
   </div>
 </template>
 
@@ -107,7 +107,6 @@ export default {
       items: [],
       filteredItems: [],
       toggleAddFlag: false,
-      displaySaveData: null,
     };
   },
   methods: {
@@ -210,8 +209,7 @@ export default {
         accumulator.push(...result);
         return accumulator;
       }, []);
-      console.log('Log saves', postData)
-      this.displaySaveData = postData
+      console.log(postData)
     },
   },
   created() {

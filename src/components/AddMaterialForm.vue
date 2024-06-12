@@ -1,15 +1,21 @@
 <template>
-  <div>
-    <input id="search-material-input-2" v-model="searchQuery" placeholder="search material" />
-    <button  @click="handleSearchMaterial">search</button>
+  <div id="add-material-form">
+    <input
+      id="search-material-input-2"
+      v-model="searchQuery"
+      placeholder="search material"
+    />
+    <button id="search-material-button-2" @click="handleSearchMaterial">search</button>
     <br />
-    material: {{ material.Material  }}
-    <br>
-    product code: {{ material.ProductCode }}
+    <p id="mat-name">material: {{ material.Material }}</p>
     <br />
-    description: {{ material.Description }}
+    <p>product code: {{ material.ProductCode }}</p>
     <br />
-    <button :disabled="material.ProductCode === ''" @click="handleAddButton">add</button><button @click="handleExitAddForm">cancel</button>
+    <p>description: {{ material.Description }}</p>
+    <br />
+    <button id="add-button" :disabled="material.ProductCode === ''" @click="handleAddButton">
+      add</button
+    ><button id="cancel-button" @click="handleExitAddForm">cancel</button>
   </div>
 </template>
 
@@ -51,24 +57,24 @@ export default {
         ...this.material,
         A1: {
           QTY: null,
-          savedQTY: null
+          savedQTY: null,
         },
         A2: {
           QTY: null,
-          savedQTY: null
+          savedQTY: null,
         },
         A3: {
           QTY: null,
-          savedQTY: null
+          savedQTY: null,
         },
         A4: {
           QTY: null,
-          savedQTY: null
-        }
-      }
-      this.$emit('addMaterialTable', this.material)
-      this.handleExitAddForm()
-    }
+          savedQTY: null,
+        },
+      };
+      this.$emit("addMaterialTable", this.material);
+      this.handleExitAddForm();
+    },
   },
 };
 </script>
