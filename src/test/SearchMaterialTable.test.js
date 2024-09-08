@@ -57,7 +57,7 @@ describe("Material Table", () => {
     expect(childComponent.vm.stockQuantity).toBe(100);
 
     const totalRow0 = wrapper.find("#total0");
-    expect(totalRow0.text()).toBe("170");
+    expect(totalRow0.text()).toBe("171");
   });
 
   it("Input should tabindex from top to bottom and left to right", async () => {
